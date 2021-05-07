@@ -27,10 +27,18 @@ describe('Create User Use Case', () => {
     expect(repSpy).toHaveBeenCalledWith("valid_email@email.com");
   });
 
+  it('ensure CreateUserUseCase calls userRepository create with corrects values', async () => {
+    const { sut,usersRepository } = makeSut();
+    const repSpy = jest.spyOn(usersRepository, "create");
+    await sut.execute({email: "valid_email@email.com", name: "Any Name",password: "any Password"});
+    expect(repSpy).toHaveBeenCalledWith(expect.objectContaining({email: "valid_email@email.com", name: "Any Name"}));
+  });
+
   it('ensure CreateUserUseCase throws when user email exists', async () => {
     const { sut,usersRepository } = makeSut();
     jest.spyOn(usersRepository, "findByEmail").mockResolvedValueOnce(makeFakeUser());
     const response = sut.execute({email: "valid_email@email.com", name: "Any Name",password: "any Password"});
     expect(response).rejects.toBeInstanceOf(CreateUserError);
   });
+
 });
