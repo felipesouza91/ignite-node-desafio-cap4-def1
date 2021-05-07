@@ -7,6 +7,7 @@ import { CreateUserUseCase } from "./CreateUserUseCase";
 const makeFakeUser = (): User => {
   const user = new User();
   user.name = 'Any name';
+  user.email = "valid_email@email.com";
   return user;
 }
 
@@ -39,6 +40,16 @@ describe('Create User Use Case', () => {
     jest.spyOn(usersRepository, "findByEmail").mockResolvedValueOnce(makeFakeUser());
     const response = sut.execute({email: "valid_email@email.com", name: "Any Name",password: "any Password"});
     expect(response).rejects.toBeInstanceOf(CreateUserError);
+  });
+
+  it('ensure CreateUserUseCase return a user when valid values are provided', async () => {
+    const { sut,usersRepository } = makeSut();
+    jest.spyOn(usersRepository, "create").mockResolvedValueOnce(makeFakeUser());
+    const response = await sut.execute({email: "valid_email@email.com", name: "Any name",password: "any Password"});
+    expect(response).toBeTruthy();
+    expect(response.id).not.toBeNull();
+    expect(response.name).toBe("Any name");
+    expect(response.email).toBe("valid_email@email.com");
   });
 
 });
