@@ -29,6 +29,18 @@ describe('Authenticate User Use Case', () => {
   it('ensure AuthenticateUserUseCase throws when user not exists', async () => {
     const { sut, userRespository} = makeSut();
     const reponse =  sut.execute({email: "valid_email@email.com", password: "password"});
-    expect(reponse).rejects.toBeInstanceOf(IncorrectEmailOrPasswordError)
+    expect(reponse).rejects.toBeInstanceOf(IncorrectEmailOrPasswordError);
+  });
+
+  it('ensure AuthenticateUserUseCase throws when password is invalid', async () => {
+    const { sut, userRespository} = makeSut();
+    const password = await hash("password", 8);
+    await userRespository.create({
+      email: "valid_email@email.com",
+      password,
+      name: "Felipe"
+    });
+    const reponse =  sut.execute({email: "valid_email@email.com", password: "invalidPasswor"});
+    expect(reponse).rejects.toBeInstanceOf(IncorrectEmailOrPasswordError);
   });
 });
