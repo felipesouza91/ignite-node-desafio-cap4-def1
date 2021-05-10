@@ -1,7 +1,9 @@
+import { AppError } from "../../../../shared/errors/AppError";
 import { User } from "../../../users/entities/User";
 import { InMemoryUsersRepository } from "../../../users/repositories/in-memory/InMemoryUsersRepository";
 import { Statement } from "../../entities/Statement";
 import { InMemoryStatementsRepository } from "../../repositories/in-memory/InMemoryStatementsRepository";
+import { GetStatementOperationError } from "./GetStatementOperationError";
 import { GetStatementOperationUseCase } from "./GetStatementOperationUseCase";
 
 const makeSut = () => {
@@ -35,4 +37,11 @@ describe('Get Statement Operation Use Case', () => {
     await sut.execute({user_id: 'user_id', statement_id: "statement_id"});
     expect(repSpy).toHaveBeenCalledWith({user_id: 'user_id', statement_id:"statement_id" });
   });
+
+  it('ensure GetStatementOperationUseCase throws when user not exists', async () => {
+    const { sut, } = makeSut();
+    const response = sut.execute({user_id: 'user_id', statement_id: "statement_id"});
+    await expect(response).rejects.toEqual(new AppError('User not found', 404));
+  });
+
 });
