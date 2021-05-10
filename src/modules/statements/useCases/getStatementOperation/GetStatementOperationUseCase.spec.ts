@@ -44,4 +44,12 @@ describe('Get Statement Operation Use Case', () => {
     await expect(response).rejects.toEqual(new AppError('User not found', 404));
   });
 
+  it('ensure GetStatementOperationUseCase throws when statement not exists', async () => {
+    const { sut, userRepository, statementRepository} = makeSut();
+    jest.spyOn(userRepository, 'findById')
+      .mockResolvedValueOnce(new User());
+    const response =  sut.execute({user_id: 'user_id', statement_id: "statement_id"});
+    await expect(response).rejects.toEqual(new AppError('Statement not found', 404));
+  });
+
 });
