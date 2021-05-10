@@ -43,4 +43,18 @@ describe('Authenticate User Use Case', () => {
     const reponse =  sut.execute({email: "valid_email@email.com", password: "invalidPasswor"});
     expect(reponse).rejects.toBeInstanceOf(IncorrectEmailOrPasswordError);
   });
+
+  it('ensure AuthenticateUserUseCase return a Authentication object when correct values are provided', async () => {
+    const { sut, userRespository} = makeSut();
+    const password = await hash("password", 8);
+    await userRespository.create({
+      email: "valid_email@email.com",
+      password,
+      name: "Felipe"
+    });
+    const response = await sut.execute({email: "valid_email@email.com", password: "password"});
+    expect(response).toBeTruthy();
+    expect(response.user.email).toBe("valid_email@email.com");
+    expect(response.token).toBeTruthy();
+  });
 });
