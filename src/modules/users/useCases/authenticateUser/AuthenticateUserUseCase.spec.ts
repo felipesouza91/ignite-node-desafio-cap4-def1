@@ -2,6 +2,7 @@ import { User } from "../../entities/User";
 import { InMemoryUsersRepository } from "../../repositories/in-memory/InMemoryUsersRepository";
 import { AuthenticateUserUseCase } from "./AuthenticateUserUseCase";
 import {hash} from 'bcryptjs';
+import { IncorrectEmailOrPasswordError } from "./IncorrectEmailOrPasswordError";
 
 
 const makeSut = () => {
@@ -23,5 +24,11 @@ describe('Authenticate User Use Case', () => {
     const repSpy = jest.spyOn(userRespository, 'findByEmail');
     await sut.execute({email: "valid_email@email.com", password: "password"});
     expect(repSpy).toHaveBeenCalledWith("valid_email@email.com");
+  });
+
+  it('ensure AuthenticateUserUseCase throws when user not exists', async () => {
+    const { sut, userRespository} = makeSut();
+    const reponse =  sut.execute({email: "valid_email@email.com", password: "password"});
+    expect(reponse).rejects.toBeInstanceOf(IncorrectEmailOrPasswordError)
   });
 });
