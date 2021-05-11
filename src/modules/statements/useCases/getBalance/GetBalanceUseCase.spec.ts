@@ -40,4 +40,15 @@ describe('Get Balance Use Case', () => {
     await sut.execute({user_id: 'user_id'});
     expect(repSpy).toHaveBeenCalledWith({user_id: 'user_id', with_statement: true});
   });
+
+  it('ensure GetBalanceUseCase return Statement', async () => {
+    const { sut, userRepository, statementRepository} = makeSut();
+    jest.spyOn(userRepository, 'findById')
+      .mockResolvedValueOnce(new User());
+    jest.spyOn(statementRepository, 'findStatementOperation')
+      .mockResolvedValueOnce(new Statement());
+    const repSpy = jest.spyOn(userRepository, 'findById');
+    const response = await sut.execute({user_id: 'user_id'});
+    expect(response).toBeTruthy();
+  });
 });
