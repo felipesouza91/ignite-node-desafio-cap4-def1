@@ -34,10 +34,19 @@ describe('Create Statement Use Case', () => {
     const { sut, userRepository, statementRepository} = makeSut();
     jest.spyOn(userRepository, 'findById')
       .mockResolvedValueOnce(new User());
-    jest.spyOn(statementRepository, 'findStatementOperation')
-      .mockResolvedValueOnce(new Statement());
     const repSpy = jest.spyOn(userRepository, 'findById');
     await sut.execute(makeFakeInput());
     expect(repSpy).toHaveBeenCalledWith('user_id');
+  });
+
+  it('ensure CreateStatementUseCase calls statementsRepository.getUserBalance with correct value', async () => {
+    const { sut, userRepository, statementRepository} = makeSut();
+    jest.spyOn(userRepository, 'findById')
+      .mockResolvedValueOnce(new User());
+    jest.spyOn(statementRepository, 'getUserBalance')
+      .mockResolvedValueOnce({ balance: 500});
+    const repSpy = jest.spyOn(statementRepository, 'getUserBalance');
+    await sut.execute({...makeFakeInput(), type: OperationType.WITHDRAW});
+    expect(repSpy).toHaveBeenCalledWith({user_id:'user_id'});
   });
 });
