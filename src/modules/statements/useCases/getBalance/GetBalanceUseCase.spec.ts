@@ -1,0 +1,27 @@
+import { User } from "../../../users/entities/User";
+import { InMemoryUsersRepository } from "../../../users/repositories/in-memory/InMemoryUsersRepository";
+import { Statement } from "../../entities/Statement";
+import { InMemoryStatementsRepository } from "../../repositories/in-memory/InMemoryStatementsRepository";
+import { GetBalanceUseCase } from "./GetBalanceUseCase";
+
+const makeSut = () => {
+  const userRepository = new InMemoryUsersRepository();
+  const statementRepository = new InMemoryStatementsRepository();
+  const sut = new GetBalanceUseCase(statementRepository, userRepository)
+  return {
+    sut, statementRepository, userRepository
+  }
+}
+describe('Get Balance Use Case', () => {
+
+  it('ensure GetBalanceUseCase calls userRespository.findbyid with correct value', async () => {
+    const { sut, userRepository, statementRepository} = makeSut();
+    jest.spyOn(userRepository, 'findById')
+      .mockResolvedValueOnce(new User());
+    jest.spyOn(statementRepository, 'findStatementOperation')
+      .mockResolvedValueOnce(new Statement());
+    const repSpy = jest.spyOn(userRepository, 'findById');
+    await sut.execute({user_id: 'user_id'});
+    expect(repSpy).toHaveBeenCalledWith('user_id');
+  });
+});
