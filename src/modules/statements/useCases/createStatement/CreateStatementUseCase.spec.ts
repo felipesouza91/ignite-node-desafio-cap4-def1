@@ -1,3 +1,4 @@
+import { AppError } from "../../../../shared/errors/AppError";
 import { User } from "../../../users/entities/User";
 import { InMemoryUsersRepository } from "../../../users/repositories/in-memory/InMemoryUsersRepository";
 import { Statement } from "../../entities/Statement";
@@ -48,5 +49,22 @@ describe('Create Statement Use Case', () => {
     const repSpy = jest.spyOn(statementRepository, 'getUserBalance');
     await sut.execute({...makeFakeInput(), type: OperationType.WITHDRAW});
     expect(repSpy).toHaveBeenCalledWith({user_id:'user_id'});
+  });
+
+  it('ensure CreateStatementUseCase throws when user not exists', async () => {
+    const { sut, } = makeSut();
+    const response = sut.execute(makeFakeInput());
+    await expect(response).rejects.toEqual(new AppError('User not found', 404));
+  });
+
+  it('ensure CreateStatementUseCase throws when balance is insuffcients', async () => {
+    const { sut, userRepository, statementRepository} = makeSut();
+    jest.spyOn(userRepository, 'findById')
+      .mockResolvedValueOnce(new User());
+    jest.spyOn(statementRepository, 'getUserBalance')
+      .mockResolvedValueOnce({ balance: 50});
+    const repSpy = jest.spyOn(statementRepository, 'getUserBalance');
+    const response = sut.execute({...makeFakeInput(), type: OperationType.WITHDRAW});
+    await expect(response).rejects.toEqual(new AppError('Insufficient funds', 400));
   });
 });
