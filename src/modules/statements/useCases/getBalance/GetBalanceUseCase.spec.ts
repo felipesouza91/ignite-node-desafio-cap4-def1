@@ -31,4 +31,13 @@ describe('Get Balance Use Case', () => {
     const response = sut.execute({user_id: 'user_id'});
     await expect(response).rejects.toBeInstanceOf(GetBalanceError);
   });
+
+  it('ensure GetBalanceUseCase calls statementsRepository.getUserBalance with correct value', async () => {
+    const { sut, userRepository,statementRepository } = makeSut();
+    const repSpy = jest.spyOn(statementRepository, 'getUserBalance');
+    jest.spyOn(userRepository, 'findById')
+    .mockResolvedValueOnce(new User());
+    await sut.execute({user_id: 'user_id'});
+    expect(repSpy).toHaveBeenCalledWith({user_id: 'user_id', with_statement: true});
+  });
 });
