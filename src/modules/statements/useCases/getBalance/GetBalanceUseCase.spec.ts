@@ -2,6 +2,7 @@ import { User } from "../../../users/entities/User";
 import { InMemoryUsersRepository } from "../../../users/repositories/in-memory/InMemoryUsersRepository";
 import { Statement } from "../../entities/Statement";
 import { InMemoryStatementsRepository } from "../../repositories/in-memory/InMemoryStatementsRepository";
+import { GetBalanceError } from "./GetBalanceError";
 import { GetBalanceUseCase } from "./GetBalanceUseCase";
 
 const makeSut = () => {
@@ -23,5 +24,11 @@ describe('Get Balance Use Case', () => {
     const repSpy = jest.spyOn(userRepository, 'findById');
     await sut.execute({user_id: 'user_id'});
     expect(repSpy).toHaveBeenCalledWith('user_id');
+  });
+
+  it('ensure GetBalanceUseCase throws when user not exists', async () => {
+    const { sut, } = makeSut();
+    const response = sut.execute({user_id: 'user_id'});
+    await expect(response).rejects.toBeInstanceOf(GetBalanceError);
   });
 });
