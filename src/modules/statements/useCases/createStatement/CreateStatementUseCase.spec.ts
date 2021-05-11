@@ -67,4 +67,15 @@ describe('Create Statement Use Case', () => {
     const response = sut.execute({...makeFakeInput(), type: OperationType.WITHDRAW});
     await expect(response).rejects.toEqual(new AppError('Insufficient funds', 400));
   });
+
+  it('ensure CreateStatementUseCase calls statementsRepository.create with correct value', async () => {
+    const { sut, userRepository, statementRepository} = makeSut();
+    jest.spyOn(userRepository, 'findById')
+      .mockResolvedValueOnce(new User());
+    jest.spyOn(statementRepository, 'getUserBalance')
+      .mockResolvedValueOnce({ balance: 500});
+    const repSpy = jest.spyOn(statementRepository, 'create');
+    await sut.execute({...makeFakeInput(), type: OperationType.WITHDRAW});
+    expect(repSpy).toHaveBeenCalledWith({...makeFakeInput(), type: OperationType.WITHDRAW});
+  });
 });
