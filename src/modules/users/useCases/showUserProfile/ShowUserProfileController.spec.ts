@@ -47,4 +47,11 @@ describe('Authenticate User Controller', () => {
       expect(response.statusCode).toBe(401);
       expect(response.body.message).toBe("JWT token is missing!");
   });
+
+  it('ensure return 401 when invalid token is provide', async () => {
+    const response = await request(app).get("/api/v1/profile")
+    .set("authorization", `Bearer invalidtoken`);
+      expect(response.statusCode).toBe(401);
+      expect(response.body.message).toBe("JWT invalid token!");
+  });
 });
