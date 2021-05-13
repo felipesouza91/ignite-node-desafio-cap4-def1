@@ -23,7 +23,6 @@ describe('Authenticate User Controller', () => {
   it('ensure return 401 when invalid credentials are provided ', async () => {
     const response = await request(app).post("/api/v1/sessions")
       .send({email: "admin@finapi.com", password: "password" })
-    console.log(response);
     expect(response.statusCode).toBe(401);
   });
 
