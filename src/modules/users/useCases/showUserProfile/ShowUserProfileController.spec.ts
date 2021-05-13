@@ -42,4 +42,9 @@ describe('Authenticate User Controller', () => {
       expect(response.body.email).toBe("admin@finapi.com");
   });
 
+  it('ensure return 401 when not token is provided', async () => {
+    const response = await request(app).get("/api/v1/profile");
+      expect(response.statusCode).toBe(401);
+      expect(response.body.message).toBe("JWT token is missing!");
+  });
 });
