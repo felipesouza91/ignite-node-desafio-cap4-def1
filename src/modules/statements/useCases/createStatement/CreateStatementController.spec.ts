@@ -2,7 +2,6 @@ import request from "supertest";
 import { Connection, createConnection } from "typeorm";
 
 import {app} from '../../../../app'
-import { User } from "../../../users/entities/User";
 import { Statement } from "../../entities/Statement";
 
 
@@ -21,6 +20,7 @@ describe('Authenticate User Controller', () => {
   });
 
   beforeEach( async () => {
+
     const response = await request(app).post("/api/v1/sessions").send({
       email: "admin@finapi.com",
       password: "password"
@@ -29,7 +29,6 @@ describe('Authenticate User Controller', () => {
   })
 
   afterEach(async () => {
-    await connection.getRepository(User).delete({});
     await connection.getRepository(Statement).delete({});
   });
 
@@ -47,10 +46,20 @@ describe('Authenticate User Controller', () => {
 
   it('ensure CreateStatementController return 401 when invalid token is provided', async () => {
     const response = await request(app).post("/api/v1/statements/deposit")
-      .set("Authorization", "Bearer anyToken")
+      .set("Authorization", `Bearer anyToken`)
       .send({amount: 100, description: "A deposit" })
       expect(response.statusCode).toBe(401);
       expect(response.body.message).toBe("JWT invalid token!");
+  });
+
+  it('ensure CreateStatementController return 201 when deposit with correct values', async () => {
+    const response = await request(app).post("/api/v1/statements/deposit")
+      .set("authorization", `Bearer ${token}`)
+      .send({amount: 100, description: "A deposit" })
+      console.log(response);
+      expect(response.statusCode).toBe(201);
+      expect(response.body.amount).toBe(100);
+      expect(response.body.type).toBe("deposit");
   });
 
 });
