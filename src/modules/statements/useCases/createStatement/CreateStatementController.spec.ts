@@ -56,10 +56,19 @@ describe('Authenticate User Controller', () => {
     const response = await request(app).post("/api/v1/statements/deposit")
       .set("authorization", `Bearer ${token}`)
       .send({amount: 100, description: "A deposit" })
-      console.log(response);
+
       expect(response.statusCode).toBe(201);
       expect(response.body.amount).toBe(100);
       expect(response.body.type).toBe("deposit");
+  });
+
+  it('ensure CrateStatementController return 400 when withdraw with insuficiente founds', async () => {
+    const response = await request(app).post("/api/v1/statements/withdraw")
+      .set("authorization", `Bearer ${token}`)
+      .send({amount: 100, description: "A withdraw" })
+      console.log(response);
+      expect(response.statusCode).toBe(400);
+      expect(response.body.message).toBe("Insufficient funds");
   });
 
 });
