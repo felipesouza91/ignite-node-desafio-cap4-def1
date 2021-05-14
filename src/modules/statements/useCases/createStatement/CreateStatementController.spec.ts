@@ -38,11 +38,19 @@ describe('Authenticate User Controller', () => {
     await connection.close();
   });
 
-  it('ensure return 401 when no valid is provided', async () => {
+  it('ensure CreateStatementController return 401 when no valid is provided', async () => {
     const response = await request(app).post("/api/v1/statements/deposit")
       .send({amount: 100, description: "A deposit" })
       expect(response.statusCode).toBe(401);
       expect(response.body.message).toBe("JWT token is missing!");
+  });
+
+  it('ensure CreateStatementController return 401 when invalid token is provided', async () => {
+    const response = await request(app).post("/api/v1/statements/deposit")
+      .set("Authorization", "Bearer anyToken")
+      .send({amount: 100, description: "A deposit" })
+      expect(response.statusCode).toBe(401);
+      expect(response.body.message).toBe("JWT invalid token!");
   });
 
 });
