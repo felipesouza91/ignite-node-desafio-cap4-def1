@@ -41,4 +41,11 @@ describe('Get Statement Operation Controller', () => {
   });
 
 
+  it('ensure GetStatementOperationController return 401 when token invalid', async () => {
+    const response = await request(app).get("/api/v1/statements/any_id")
+      .set("authorization", "Bearer invalidToken");
+      expect(response.statusCode).toBe(401);
+      expect(response.body.message).toBe("JWT invalid token!");
+  });
+
 });
