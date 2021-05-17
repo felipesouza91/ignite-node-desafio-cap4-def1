@@ -38,4 +38,13 @@ describe('Get Balance Controller', () => {
       expect(response.statusCode).toBe(401);
       expect(response.body.message).toBe("JWT token is missing!");
   });
+
+  it('ensure GetBalanceController return 401 when token invalid', async () => {
+    const response = await request(app).post("/api/v1/statements/balance")
+      .set("authorization", "Bearer invalidToken")
+      .send({amount: 100, description: "A deposit" })
+      expect(response.statusCode).toBe(401);
+      expect(response.body.message).toBe("JWT invalid token!");
+  });
+
 });
