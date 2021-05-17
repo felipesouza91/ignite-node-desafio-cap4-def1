@@ -3,7 +3,7 @@ import { Connection, createConnection } from "typeorm";
 import { app } from "../../../../app";
 import { User } from "../../../users/entities/User";
 import { Statement } from "../../entities/Statement";
-
+import { v4 as uuidV4} from 'uuid'
 let connection: Connection;
 let token: string;
 
@@ -65,6 +65,14 @@ describe('Get Statement Operation Controller', () => {
       .set("authorization", `Bearer ${token}`);
       expect(response.statusCode).toBe(404);
       expect(response.body.message).toBe("User not found");
+  });
+
+  it('ensure GetStatementOperationController return 404 when statment id not exists', async () => {
+    const fakeId = uuidV4();
+    const response = await request(app).get(`/api/v1/statements/${fakeId}`)
+      .set("authorization", `Bearer ${token}`);
+      expect(response.statusCode).toBe(404);
+      expect(response.body.message).toBe("Statement not found");
   });
 
 });
