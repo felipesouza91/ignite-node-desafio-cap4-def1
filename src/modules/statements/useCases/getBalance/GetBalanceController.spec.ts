@@ -64,4 +64,14 @@ describe('Get Balance Controller', () => {
       expect(response.body.message).toBe("User not found");
   });
 
+  it('ensure GetBalanceController return 200 when corect values are provided', async () => {
+    await request(app).post("/api/v1/statements/deposit")
+      .set("authorization", `Bearer ${token}`)
+      .send({amount: 100, description: "A deposit" })
+    const response = await request(app).get("/api/v1/statements/balance")
+    .set("authorization", `Bearer ${token}`);
+    expect(response.statusCode).toBe(200);
+    expect(response.body.balance).toBe(100);
+  });
+
 });
