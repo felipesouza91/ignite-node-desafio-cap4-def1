@@ -34,13 +34,13 @@ describe('Get Balance Controller', () => {
   });
 
   it('ensure GetBalanceController return 401 when no valid is provided', async () => {
-    const response = await request(app).get("/api/v1/statements/balance")
+    const response = await request(app).get(`/api/v1/statements/balance`)
       .send({amount: 100, description: "A deposit" });
       expect(response.body.message).toBe("JWT token is missing!");
   });
 
   it('ensure GetBalanceController return 401 when token invalid', async () => {
-    const response = await request(app).get("/api/v1/statements/balance")
+    const response = await request(app).get(`/api/v1/statements/balance`)
       .set("authorization", "Bearer invalidToken");
       expect(response.statusCode).toBe(401);
       expect(response.body.message).toBe("JWT invalid token!");
