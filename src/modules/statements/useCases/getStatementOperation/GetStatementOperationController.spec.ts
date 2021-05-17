@@ -75,4 +75,14 @@ describe('Get Statement Operation Controller', () => {
       expect(response.body.message).toBe("Statement not found");
   });
 
+  it('ensure GetStatementOperationController return 200 when valid statment id is provide', async () => {
+    const createStatement = await request(app).post("/api/v1/statements/deposit")
+      .set("authorization", `Bearer ${token}`)
+      .send({amount: 100, description: "A deposit" });
+    const response = await request(app).get(`/api/v1/statements/${createStatement.body.id}`)
+     .set("authorization", `Bearer ${token}`);
+    expect(response.statusCode).toBe(200);
+    expect(response.body.id).toBe(createStatement.body.id);
+  });
+
 });
