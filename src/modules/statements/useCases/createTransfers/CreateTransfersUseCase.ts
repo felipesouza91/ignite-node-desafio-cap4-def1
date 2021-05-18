@@ -1,4 +1,5 @@
 import { IUsersRepository } from "../../../users/repositories/IUsersRepository";
+import { OperationType } from "../../entities/Statement";
 import { IStatementsRepository } from "../../repositories/IStatementsRepository";
 import { CreateTransfersError } from "./CreateTransfersError";
 
@@ -35,5 +36,20 @@ export default class CreateTransfersUseCase {
     if (userBalance.balance < amount) {
       throw new CreateTransfersError.InsufficientFunds();
     }
+    //record a deposit in the destination user
+    this.statementRepoisoty.create({
+      amount,
+      description,
+      type: OperationType.TRANSFERS,
+      user_id: destUserId,
+      sender_id: userId,
+    });
+
+    this.statementRepoisoty.create({
+      amount,
+      description,
+      type: OperationType.WITHDRAW,
+      user_id: userId,
+    });
   }
 }
