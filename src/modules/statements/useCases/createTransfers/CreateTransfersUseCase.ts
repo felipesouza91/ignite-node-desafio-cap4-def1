@@ -21,6 +21,9 @@ export default class CreateTransfersUseCase {
     if (!user) {
       throw new CreateTransfersError.UserNotFound();
     }
-    await this.userRepository.findById(destUserId);
+    const destanationUser = await this.userRepository.findById(destUserId);
+    if (!destanationUser) {
+      throw new CreateTransfersError.UserNotFound();
+    }
   }
 }
