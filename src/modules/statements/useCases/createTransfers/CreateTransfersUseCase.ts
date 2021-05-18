@@ -1,4 +1,5 @@
 import { IUsersRepository } from "../../../users/repositories/IUsersRepository";
+import { CreateTransfersError } from "./CreateTransfersError";
 
 interface ICreateTransfersInput {
   userId: string;
@@ -16,7 +17,10 @@ export default class CreateTransfersUseCase {
     amount,
     description,
   }: ICreateTransfersInput): Promise<void> {
-    await this.userRepository.findById(userId);
+    const user = await this.userRepository.findById(userId);
+    if (!user) {
+      throw new CreateTransfersError.UserNotFound();
+    }
     await this.userRepository.findById(destUserId);
   }
 }
