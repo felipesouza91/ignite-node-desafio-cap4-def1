@@ -17,9 +17,21 @@ describe("Create Transfers Use Case", () => {
     await sut.execute({
       amount: 100,
       description: "Pix diner",
-      destination_id: "valid destination_id",
-      user_id: "user_id",
+      destUserId: "valid_destination_id",
+      userId: "user_id",
     });
     expect(repSpy).toHaveBeenCalledWith("user_id");
+  });
+
+  it("ensure CreateTransfersUseCase calls findUserBtIdReposity with valid_destination_id", async () => {
+    const { sut, userRepository } = makeSut();
+    const repSpy = jest.spyOn(userRepository, "findById");
+    await sut.execute({
+      amount: 100,
+      description: "Pix diner",
+      destUserId: "valid_destination_id",
+      userId: "user_id",
+    });
+    expect(repSpy).toHaveBeenCalledWith("valid_destination_id");
   });
 });
