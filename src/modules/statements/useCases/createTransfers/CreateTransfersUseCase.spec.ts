@@ -52,4 +52,18 @@ describe("Create Transfers Use Case", () => {
       CreateTransfersError.UserNotFound
     );
   });
+
+  it("ensure CreateTransfersUseCase throw when destination_id not exists", async () => {
+    const { sut, userRepository } = makeSut();
+    jest.spyOn(userRepository, "findById").mockResolvedValueOnce(new User());
+    const response = sut.execute({
+      amount: 100,
+      description: "Pix diner",
+      destUserId: "valid_destination_id",
+      userId: "user_id",
+    });
+    await expect(response).rejects.toBeInstanceOf(
+      CreateTransfersError.UserNotFound
+    );
+  });
 });
