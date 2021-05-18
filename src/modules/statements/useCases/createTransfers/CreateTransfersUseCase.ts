@@ -1,4 +1,5 @@
 import { IUsersRepository } from "../../../users/repositories/IUsersRepository";
+import { IStatementsRepository } from "../../repositories/IStatementsRepository";
 import { CreateTransfersError } from "./CreateTransfersError";
 
 interface ICreateTransfersInput {
@@ -9,7 +10,10 @@ interface ICreateTransfersInput {
 }
 
 export default class CreateTransfersUseCase {
-  constructor(private userRepository: IUsersRepository) {}
+  constructor(
+    private userRepository: IUsersRepository,
+    private statementRepoisoty: IStatementsRepository
+  ) {}
 
   async execute({
     userId,
@@ -25,5 +29,6 @@ export default class CreateTransfersUseCase {
     if (!destanationUser) {
       throw new CreateTransfersError.UserNotFound();
     }
+    await this.statementRepoisoty.getUserBalance({ user_id: userId });
   }
 }
