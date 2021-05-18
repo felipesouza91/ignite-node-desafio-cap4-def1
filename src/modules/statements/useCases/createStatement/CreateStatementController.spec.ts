@@ -31,6 +31,7 @@ describe("Authenticate User Controller", () => {
   });
 
   afterAll(async () => {
+    await connection.getRepository(User).delete({});
     await connection.dropDatabase();
     await connection.close();
   });

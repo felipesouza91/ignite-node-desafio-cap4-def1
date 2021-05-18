@@ -35,7 +35,6 @@ describe("Authenticate User Controller", () => {
     const response = await request(app)
       .post("/api/v1/sessions")
       .send({ email: "admin@finapi.com", password: "password" });
-    console.log(response);
     expect(response.statusCode).toBe(200);
     expect(response.body.token).toBeTruthy();
     expect(response.body.user.email).toBe("admin@finapi.com");
