@@ -18,8 +18,11 @@ const makeSut = () => {
 
 describe("Create Transfers Use Case", () => {
   it("ensure CreateTransfersUseCase calls findUserBtIdReposity with user_id", async () => {
-    const { sut, userRepository } = makeSut();
+    const { sut, userRepository, statementRepoisoty } = makeSut();
     jest.spyOn(userRepository, "findById").mockResolvedValue(new User());
+    jest
+      .spyOn(statementRepoisoty, "getUserBalance")
+      .mockResolvedValue({ balance: 150 });
     const repSpy = jest.spyOn(userRepository, "findById");
     await sut.execute({
       amount: 100,
@@ -31,8 +34,11 @@ describe("Create Transfers Use Case", () => {
   });
 
   it("ensure CreateTransfersUseCase calls findUserBtIdReposity with valid_destination_id", async () => {
-    const { sut, userRepository } = makeSut();
+    const { sut, userRepository, statementRepoisoty } = makeSut();
     jest.spyOn(userRepository, "findById").mockResolvedValue(new User());
+    jest
+      .spyOn(statementRepoisoty, "getUserBalance")
+      .mockResolvedValue({ balance: 150 });
     const repSpy = jest.spyOn(userRepository, "findById");
     await sut.execute({
       amount: 100,
@@ -46,6 +52,9 @@ describe("Create Transfers Use Case", () => {
   it("ensure CreateTransfersUseCase calls find getUserBalance with user_id", async () => {
     const { sut, statementRepoisoty, userRepository } = makeSut();
     jest.spyOn(userRepository, "findById").mockResolvedValue(new User());
+    jest
+      .spyOn(statementRepoisoty, "getUserBalance")
+      .mockResolvedValue({ balance: 150 });
     const repSpy = jest.spyOn(statementRepoisoty, "getUserBalance");
     await sut.execute({
       amount: 100,
@@ -54,6 +63,23 @@ describe("Create Transfers Use Case", () => {
       userId: "user_id",
     });
     expect(repSpy).toHaveBeenCalledWith({ user_id: "user_id" });
+  });
+
+  it("ensure CreateTransfersUseCase throw when user-id not have balance", async () => {
+    const { sut, statementRepoisoty, userRepository } = makeSut();
+    jest.spyOn(userRepository, "findById").mockResolvedValue(new User());
+    jest
+      .spyOn(statementRepoisoty, "getUserBalance")
+      .mockResolvedValue({ balance: 0 });
+    const response = sut.execute({
+      amount: 100,
+      description: "Pix diner",
+      destUserId: "valid_destination_id",
+      userId: "user_id",
+    });
+    await expect(response).rejects.toBeInstanceOf(
+      CreateTransfersError.InsufficientFunds
+    );
   });
 
   it("ensure CreateTransfersUseCase throw when userId not exists", async () => {
