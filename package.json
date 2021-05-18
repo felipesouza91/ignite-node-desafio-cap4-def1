@@ -5,7 +5,7 @@
   "license": "MIT",
   "scripts": {
     "dev": "ts-node-dev --inspect=0.0.0.0 --poll --transpile-only --ignore-watch node_modules --respawn ./src/server.ts",
-    "test": "jest --passWithNoTests --silent --runInBand ",
+    "test": "jest --passWithNoTests --silent --runInBand --detectOpenHandles ",
     "test:verbose": "jest --passWithNoTests --runInBand",
     "test:unit": "npm test -- --watch -c jest-unit-config.js",
     "test:staged": "npm test -- --findRelatedTests",
