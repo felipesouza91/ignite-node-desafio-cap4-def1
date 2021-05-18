@@ -1,5 +1,6 @@
 import { User } from "../../../users/entities/User";
 import { InMemoryUsersRepository } from "../../../users/repositories/in-memory/InMemoryUsersRepository";
+import { OperationType } from "../../entities/Statement";
 import { InMemoryStatementsRepository } from "../../repositories/in-memory/InMemoryStatementsRepository";
 
 import { CreateTransfersError } from "./CreateTransfersError";
@@ -31,6 +32,28 @@ describe("Create Transfers Use Case", () => {
       userId: "user_id",
     });
     expect(repSpy).toHaveBeenCalledWith("user_id");
+  });
+
+  it("ensure CreateTransfersUseCase calls statementRepoisoty.create with user_id", async () => {
+    const { sut, userRepository, statementRepoisoty } = makeSut();
+    jest.spyOn(userRepository, "findById").mockResolvedValue(new User());
+    jest
+      .spyOn(statementRepoisoty, "getUserBalance")
+      .mockResolvedValue({ balance: 150 });
+    const repSpy = jest.spyOn(statementRepoisoty, "create");
+    await sut.execute({
+      amount: 100,
+      description: "Pix diner",
+      destUserId: "valid_destination_id",
+      userId: "user_id",
+    });
+    expect(repSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        amount: 100,
+        description: "Pix diner",
+        type: OperationType.TRANSFERS,
+      })
+    );
   });
 
   it("ensure CreateTransfersUseCase calls findUserBtIdReposity with valid_destination_id", async () => {
