@@ -14,7 +14,7 @@ services:
     volumes:
       - pgdata:/data/postgres
 
-  rentx-backend:
+  fin-backend:
     container_name: backend
     build: .
     volumes:
