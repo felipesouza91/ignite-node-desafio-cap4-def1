@@ -29,6 +29,11 @@ export default class CreateTransfersUseCase {
     if (!destanationUser) {
       throw new CreateTransfersError.UserNotFound();
     }
-    await this.statementRepoisoty.getUserBalance({ user_id: userId });
+    const userBalance = await this.statementRepoisoty.getUserBalance({
+      user_id: userId,
+    });
+    if (userBalance.balance < amount) {
+      throw new CreateTransfersError.InsufficientFunds();
+    }
   }
 }
