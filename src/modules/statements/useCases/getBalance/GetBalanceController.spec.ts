@@ -5,6 +5,7 @@ import { User } from "../../../users/entities/User";
 import { Statement } from "../../entities/Statement";
 let connection: Connection;
 let token: string;
+let userId: string;
 describe("Get Balance Controller", () => {
   beforeAll(async () => {
     connection = await createConnection();
@@ -22,6 +23,7 @@ describe("Get Balance Controller", () => {
       password: "password",
     });
     token = response.body.token;
+    userId = response.body.user.id;
   });
 
   afterEach(async () => {
@@ -80,5 +82,72 @@ describe("Get Balance Controller", () => {
       .set("authorization", `Bearer ${token}`);
     expect(response.statusCode).toBe(200);
     expect(response.body.balance).toBe(100);
+  });
+
+  it("ensure GetBalanceController return 200 when exists a tranfers", async () => {
+    await request(app)
+      .post("/api/v1/statements/deposit")
+      .set("authorization", `Bearer ${token}`)
+      .send({ amount: 100, description: "A deposit" });
+    await request(app)
+      .post("/api/v1/statements/deposit")
+      .set("authorization", `Bearer ${token}`)
+      .send({ amount: 100, description: "A deposit 2" });
+    await request(app).post("/api/v1/users").send({
+      name: "Another user ",
+      email: "anotheruser@finapi.com",
+      password: "password",
+    });
+    const responseToken = await request(app).post("/api/v1/sessions").send({
+      email: "anotheruser@finapi.com",
+      password: "password",
+    });
+    await request(app)
+      .post(`/api/v1/statements/transfers/${responseToken.body.user.id}`)
+      .set("authorization", `Bearer ${token}`)
+      .send({ amount: 50, description: "A tranfer" });
+    const response = await request(app)
+      .get("/api/v1/statements/balance")
+      .set("authorization", `Bearer ${token}`);
+    expect(response.statusCode).toBe(200);
+    expect(response.body.balance).toBe(150);
+  });
+
+  it("ensure GetBalanceController return 200 when exists a tranfers in another user", async () => {
+    await request(app)
+      .post("/api/v1/statements/deposit")
+      .set("authorization", `Bearer ${token}`)
+      .send({ amount: 100, description: "A deposit" });
+    await request(app)
+      .post("/api/v1/statements/deposit")
+      .set("authorization", `Bearer ${token}`)
+      .send({ amount: 100, description: "A deposit 2" });
+    await request(app).post("/api/v1/users").send({
+      name: "Another user ",
+      email: "anotheruser@finapi.com",
+      password: "password",
+    });
+    const responseToken = await request(app).post("/api/v1/sessions").send({
+      email: "anotheruser@finapi.com",
+      password: "password",
+    });
+    await request(app)
+      .post(`/api/v1/statements/transfers/${responseToken.body.user.id}`)
+      .set("authorization", `Bearer ${token}`)
+      .send({ amount: 50, description: "A tranfer" });
+
+    const response = await request(app)
+      .get("/api/v1/statements/balance")
+      .set("authorization", `Bearer ${responseToken.body.token}`);
+    expect(response.statusCode).toBe(200);
+    expect(response.body.balance).toBe(50);
+    expect(response.body.statement).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          type: "transfers",
+          sender_id: userId,
+        }),
+      ])
+    );
   });
 });
