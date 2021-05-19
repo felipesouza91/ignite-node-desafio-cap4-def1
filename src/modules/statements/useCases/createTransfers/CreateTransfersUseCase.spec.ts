@@ -131,4 +131,20 @@ describe("Create Transfers Use Case", () => {
       CreateTransfersError.UserNotFound
     );
   });
+
+  it("ensure CreateTransfersUseCase return tranfers when correct values provided", async () => {
+    const { sut, userRepository, statementRepoisoty } = makeSut();
+    jest.spyOn(userRepository, "findById").mockResolvedValue(new User());
+    jest
+      .spyOn(statementRepoisoty, "getUserBalance")
+      .mockResolvedValue({ balance: 150 });
+    const response = await sut.execute({
+      amount: 100,
+      description: "Pix diner",
+      destUserId: "valid_destination_id",
+      userId: "user_id",
+    });
+    expect(response).toBeTruthy();
+    expect(response.amount).toBe(100);
+  });
 });
