@@ -12,14 +12,14 @@ describe("Create Transfers Controller", () => {
   beforeAll(async () => {
     connection = await createConnection();
     await connection.runMigrations();
+  });
+
+  beforeEach(async () => {
     await request(app).post("/api/v1/users").send({
       name: "Admin",
       email: "admin@finapi.com",
       password: "password",
     });
-  });
-
-  beforeEach(async () => {
     const response = await request(app).post("/api/v1/sessions").send({
       email: "admin@finapi.com",
       password: "password",
