@@ -1,5 +1,5 @@
 import { IUsersRepository } from "../../../users/repositories/IUsersRepository";
-import { OperationType } from "../../entities/Statement";
+import { OperationType, Statement } from "../../entities/Statement";
 import { IStatementsRepository } from "../../repositories/IStatementsRepository";
 import { CreateTransfersError } from "./CreateTransfersError";
 
@@ -21,7 +21,7 @@ export default class CreateTransfersUseCase {
     destUserId,
     amount,
     description,
-  }: ICreateTransfersInput): Promise<void> {
+  }: ICreateTransfersInput): Promise<Statement> {
     const user = await this.userRepository.findById(userId);
     if (!user) {
       throw new CreateTransfersError.UserNotFound();
@@ -37,7 +37,7 @@ export default class CreateTransfersUseCase {
       throw new CreateTransfersError.InsufficientFunds();
     }
     //record a deposit in the destination user
-    this.statementRepoisoty.create({
+    const transference = this.statementRepoisoty.create({
       amount,
       description,
       type: OperationType.TRANSFERS,
@@ -51,5 +51,6 @@ export default class CreateTransfersUseCase {
       type: OperationType.WITHDRAW,
       user_id: userId,
     });
+    return transference;
   }
 }
