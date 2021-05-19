@@ -7,7 +7,7 @@ import { Statement } from "../../entities/Statement";
 
 let connection: Connection;
 let token: string;
-describe("Authenticate User Controller", () => {
+describe("Create Transfers Controller", () => {
   beforeAll(async () => {
     connection = await createConnection();
     await connection.runMigrations();
@@ -36,11 +36,20 @@ describe("Authenticate User Controller", () => {
     await connection.close();
   });
 
-  it("ensure CreateStatementController return 401 when no valid is provided", async () => {
+  it("ensure CreateTransfersController return 401 when no valid is provided", async () => {
     const response = await request(app)
       .post("/api/v1/statements/transfers/:user_id")
       .send({ amount: 100, description: "A deposit" });
     expect(response.statusCode).toBe(401);
     expect(response.body.message).toBe("JWT token is missing!");
+  });
+
+  it("ensure CreateTransfersController return 401 when invalid token is provided", async () => {
+    const response = await request(app)
+      .post("/api/v1/statements/transfers/:user_id")
+      .set("Authorization", `Bearer anyToken`)
+      .send({ amount: 100, description: "A deposit" });
+    expect(response.statusCode).toBe(401);
+    expect(response.body.message).toBe("JWT invalid token!");
   });
 });
