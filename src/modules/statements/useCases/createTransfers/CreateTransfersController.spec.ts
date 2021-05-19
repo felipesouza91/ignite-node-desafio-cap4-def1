@@ -55,18 +55,61 @@ describe("Create Transfers Controller", () => {
     expect(response.body.message).toBe("JWT invalid token!");
   });
 
-  it("ensure CreateStatementController return 404 when userid not found", async () => {
-    const anotherUser = await request(app).post("/api/v1/users").send({
+  it("ensure CreateTransfersController return 404 when userid not found", async () => {
+    await request(app).post("/api/v1/users").send({
       name: "Another user ",
+      email: "anotheruser@finapi.com",
+      password: "password",
+    });
+    const responseToken = await request(app).post("/api/v1/sessions").send({
       email: "anotheruser@finapi.com",
       password: "password",
     });
     await connection.getRepository(User).delete({ id: userId });
     const response = await request(app)
-      .post(`/api/v1/statements/transfers/${anotherUser.body.id}`)
+      .post(`/api/v1/statements/transfers/${responseToken.body.user.id}`)
       .set("authorization", `Bearer ${token}`)
       .send({ amount: 100, description: "A deposit" });
     expect(response.statusCode).toBe(404);
     expect(response.body.message).toBe("User not found");
+  });
+
+  it("ensure CreateTransfersController return 404 when anotherUser not found", async () => {
+    await request(app).post("/api/v1/users").send({
+      name: "Another user ",
+      email: "anotheruser@finapi.com",
+      password: "password",
+    });
+    const responseToken = await request(app).post("/api/v1/sessions").send({
+      email: "anotheruser@finapi.com",
+      password: "password",
+    });
+    await connection
+      .getRepository(User)
+      .delete({ id: responseToken.body.user.id });
+    const response = await request(app)
+      .post(`/api/v1/statements/transfers/${responseToken.body.user.id}`)
+      .set("authorization", `Bearer ${token}`)
+      .send({ amount: 100, description: "A deposit" });
+    expect(response.statusCode).toBe(404);
+    expect(response.body.message).toBe("User not found");
+  });
+
+  it("ensure CreateTransfersController return 400 when user haven´t found", async () => {
+    await request(app).post("/api/v1/users").send({
+      name: "Another user ",
+      email: "anotheruser@finapi.com",
+      password: "password",
+    });
+    const responseToken = await request(app).post("/api/v1/sessions").send({
+      email: "anotheruser@finapi.com",
+      password: "password",
+    });
+    const response = await request(app)
+      .post(`/api/v1/statements/transfers/${responseToken.body.user.id}`)
+      .set("authorization", `Bearer ${token}`)
+      .send({ amount: 100, description: "A deposit" });
+    expect(response.statusCode).toBe(400);
+    expect(response.body.message).toBe("Insufficient funds");
   });
 });
