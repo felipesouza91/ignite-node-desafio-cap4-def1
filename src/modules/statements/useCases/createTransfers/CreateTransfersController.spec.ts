@@ -112,4 +112,26 @@ describe("Create Transfers Controller", () => {
     expect(response.statusCode).toBe(400);
     expect(response.body.message).toBe("Insufficient funds");
   });
+
+  it("ensure CreateTransfersController return 201 when values is valid", async () => {
+    await request(app)
+      .post("/api/v1/statements/deposit")
+      .set("authorization", `Bearer ${token}`)
+      .send({ amount: 100, description: "A deposit" });
+    await request(app).post("/api/v1/users").send({
+      name: "Another user ",
+      email: "anotheruser@finapi.com",
+      password: "password",
+    });
+    const responseToken = await request(app).post("/api/v1/sessions").send({
+      email: "anotheruser@finapi.com",
+      password: "password",
+    });
+    const response = await request(app)
+      .post(`/api/v1/statements/transfers/${responseToken.body.user.id}`)
+      .set("authorization", `Bearer ${token}`)
+      .send({ amount: 50, description: "A tranfer" });
+    expect(response.statusCode).toBe(201);
+    expect(response.body.sender_id).toBe(userId);
+  });
 });

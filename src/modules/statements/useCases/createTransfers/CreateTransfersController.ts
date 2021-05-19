@@ -13,6 +13,6 @@ export default class CreateTransfersController {
       destUserId: dest_user_id,
       userId: user_id,
     });
-    return response.send();
+    return response.status(201).json(tranfers);
   }
 }

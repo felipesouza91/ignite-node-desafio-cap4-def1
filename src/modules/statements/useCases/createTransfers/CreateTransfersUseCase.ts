@@ -39,8 +39,7 @@ export default class CreateTransfersUseCase {
     if (userBalance.balance < amount) {
       throw new CreateTransfersError.InsufficientFunds();
     }
-    //record a deposit in the destination user
-    const transference = this.statementRepoisoty.create({
+    const transference = await this.statementRepoisoty.create({
       amount,
       description,
       type: OperationType.TRANSFERS,
@@ -48,7 +47,7 @@ export default class CreateTransfersUseCase {
       sender_id: userId,
     });
 
-    this.statementRepoisoty.create({
+    await this.statementRepoisoty.create({
       amount,
       description,
       type: OperationType.WITHDRAW,
