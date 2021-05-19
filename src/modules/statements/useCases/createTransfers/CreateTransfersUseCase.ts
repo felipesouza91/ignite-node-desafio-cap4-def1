@@ -1,3 +1,4 @@
+import { inject, injectable } from "tsyringe";
 import { IUsersRepository } from "../../../users/repositories/IUsersRepository";
 import { OperationType, Statement } from "../../entities/Statement";
 import { IStatementsRepository } from "../../repositories/IStatementsRepository";
@@ -10,9 +11,11 @@ interface ICreateTransfersInput {
   description: string;
 }
 
+@injectable()
 export default class CreateTransfersUseCase {
   constructor(
-    private userRepository: IUsersRepository,
+    @inject("UsersRepository") private userRepository: IUsersRepository,
+    @inject("StatementsRepository")
     private statementRepoisoty: IStatementsRepository
   ) {}
 
